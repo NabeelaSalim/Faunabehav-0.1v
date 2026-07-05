@@ -7,7 +7,9 @@ import com.example.faunabahav.model.Observation
  * but some older rows are a bare filename like "frame.jpg" with no "frames/" prefix. Normalize
  * both to a URL under the backend's `/frames` static mount.
  */
-fun Observation.frameUrl(baseUrl: String): String {
-    val relativePath = framePath.removePrefix("frames/").removePrefix("/")
+fun Observation.frameUrl(baseUrl: String): String = framePath.toFrameUrl(baseUrl)
+
+fun String.toFrameUrl(baseUrl: String): String {
+    val relativePath = removePrefix("frames/").removePrefix("/")
     return "${baseUrl.trimEnd('/')}/frames/$relativePath"
 }

@@ -6,4 +6,5 @@ import kotlinx.serialization.Serializable
 data class User(
     val email: String,
     val displayName: String,
+    val role: String,
 )

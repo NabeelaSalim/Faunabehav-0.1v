@@ -68,10 +68,13 @@ private fun ObservationThumbnailCard(observation: Observation, baseUrl: String) 
         ObservationThumbnail(
             url = observation.frameUrl(baseUrl),
             modifier = Modifier.size(120.dp),
+            boundingBox = observation.boundingBox,
+            frameWidth = observation.frameWidth,
+            frameHeight = observation.frameHeight,
         )
         Text(observation.species.name, style = MaterialTheme.typography.labelSmall)
         Row {
-            Text(observation.riskLevel.name, style = MaterialTheme.typography.labelSmall)
+            Text(observation.riskLevel?.name ?: "N/A", style = MaterialTheme.typography.labelSmall)
         }
     }
 }

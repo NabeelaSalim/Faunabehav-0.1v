@@ -41,6 +41,7 @@ import com.example.faunabahav.ui.components.RiskFilterRow
 import com.example.faunabahav.ui.components.UiStateContent
 import com.example.faunabahav.ui.util.formatTimestamp
 import com.example.faunabahav.ui.util.frameUrl
+import com.example.faunabahav.ui.util.toPercentOrDash
 
 @Composable
 fun ObservationsScreen(
@@ -102,6 +103,9 @@ private fun ObservationCard(observation: Observation, baseUrl: String) {
             ObservationThumbnail(
                 url = observation.frameUrl(baseUrl),
                 modifier = Modifier.fillMaxWidth().height(140.dp),
+                boundingBox = observation.boundingBox,
+                frameWidth = observation.frameWidth,
+                frameHeight = observation.frameHeight,
             )
             Column(Modifier.padding(12.dp)) {
                 Row(
@@ -114,12 +118,12 @@ private fun ObservationCard(observation: Observation, baseUrl: String) {
                 }
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    "Behaviour: ${observation.behaviourCategory.name}",
+                    "Behaviour: ${observation.behaviourCategory?.name ?: "N/A (image)"}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Text(
-                    "Deterrence: ${observation.deterrenceAction}",
+                    "Deterrence: ${observation.deterrenceAction ?: "N/A (image)"}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -134,7 +138,7 @@ private fun ObservationCard(observation: Observation, baseUrl: String) {
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     Text(
-                        "${(observation.confidence * 100).toInt()}%",
+                        observation.confidence.toPercentOrDash(),
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Bold,
                     )

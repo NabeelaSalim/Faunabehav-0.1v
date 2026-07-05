@@ -1,6 +1,8 @@
 package com.example.faunabahav.data.remote
 
 import com.example.faunabahav.model.BehaviourCategory
+import com.example.faunabahav.model.MediaType
+import com.example.faunabahav.model.Outcome
 import com.example.faunabahav.model.RiskLevel
 import com.example.faunabahav.model.Species
 import kotlin.time.Instant
@@ -60,4 +62,22 @@ fun parseRiskLevel(raw: String): RiskLevel = when (raw.normalizeToken()) {
     "medium" -> RiskLevel.MEDIUM
     "high" -> RiskLevel.HIGH
     else -> throw UnknownWireValueException("risk_level", raw)
+}
+
+/**
+ * outcome is a backend-computed label describing how the automated deterrence decision
+ * resolved (not a physical confirmation) — null for image uploads, which never reach the
+ * deterrence stage.
+ */
+fun parseOutcome(raw: String): Outcome = when (raw.normalizeToken()) {
+    "deterrence_activated" -> Outcome.DETERRENCE_ACTIVATED
+    "farmer_intervention_required" -> Outcome.FARMER_INTERVENTION_REQUIRED
+    "monitoring_continues" -> Outcome.MONITORING_CONTINUES
+    else -> throw UnknownWireValueException("outcome", raw)
+}
+
+fun parseMediaType(raw: String): MediaType = when (raw.normalizeToken()) {
+    "image" -> MediaType.IMAGE
+    "video" -> MediaType.VIDEO
+    else -> throw UnknownWireValueException("media_type", raw)
 }

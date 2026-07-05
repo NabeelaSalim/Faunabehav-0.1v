@@ -80,6 +80,7 @@ fun App() {
                     selected = destination,
                     onSelect = { destination = it },
                     user = currentUser,
+                    deviceRepository = container.deviceRepository,
                     onLogout = authViewModel::logout,
                 ) {
                     when (destination) {
@@ -90,6 +91,7 @@ fun App() {
                             analyticsRepository = container.analyticsRepository,
                             observationRepository = container.observationRepository,
                             baseUrl = container.baseUrl,
+                            onNavigate = { destination = it },
                         )
                         Destination.Observations -> ObservationsScreen(
                             repository = container.observationRepository,
@@ -102,7 +104,14 @@ fun App() {
                         )
                         Destination.Devices -> DevicesScreen(container.deviceRepository)
                         Destination.Feedback -> FeedbackScreen(container.feedbackRepository)
-                        Destination.Inference -> InferenceScreen(container.observationRepository)
+                        Destination.Inference -> InferenceScreen(
+                            repository = container.observationRepository,
+                            dashboardRepository = container.dashboardRepository,
+                            alertRepository = container.alertRepository,
+                            deviceRepository = container.deviceRepository,
+                            baseUrl = container.baseUrl,
+                            onViewAllObservations = { destination = Destination.Observations },
+                        )
                         Destination.Settings -> SettingsScreen(user = currentUser, onLogout = authViewModel::logout)
                     }
                 }

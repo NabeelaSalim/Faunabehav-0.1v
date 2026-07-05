@@ -21,9 +21,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.faunabahav.model.User
+import com.example.faunabahav.ui.theme.LightGreen
 
 @Composable
 fun UserProfileCard(user: User?, onLogout: () -> Unit = {}, modifier: Modifier = Modifier) {
@@ -43,7 +45,18 @@ fun UserProfileCard(user: User?, onLogout: () -> Unit = {}, modifier: Modifier =
         Spacer(Modifier.width(12.dp))
         Column(Modifier.weight(1f)) {
             Text(user?.displayName ?: "Signed in", color = Color.White)
-            Text(user?.email ?: "", color = Color.White.copy(alpha = 0.7f))
+            Text(
+                user?.email ?: "",
+                color = Color.White.copy(alpha = 0.7f),
+                style = MaterialTheme.typography.bodySmall,
+            )
+            if (user != null) {
+                Text(
+                    user.role.replaceFirstChar { it.uppercase() },
+                    color = LightGreen,
+                    style = MaterialTheme.typography.labelSmall,
+                )
+            }
         }
         IconButton(onClick = onLogout) {
             Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Logout", tint = Color.White)

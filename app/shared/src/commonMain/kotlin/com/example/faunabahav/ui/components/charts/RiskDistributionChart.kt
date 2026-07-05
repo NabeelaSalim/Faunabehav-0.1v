@@ -1,11 +1,9 @@
 package com.example.faunabahav.ui.components.charts
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.CircleShape
@@ -18,32 +16,19 @@ import androidx.compose.ui.unit.dp
 import com.example.faunabahav.ui.theme.AccentOrange
 import com.example.faunabahav.ui.theme.DangerRed
 import com.example.faunabahav.ui.theme.LightGreen
-import io.github.koalaplot.core.pie.DefaultSlice
-import io.github.koalaplot.core.pie.PieChart
-import io.github.koalaplot.core.util.ExperimentalKoalaPlotApi
 
-private val RiskColors = listOf(LightGreen, AccentOrange, DangerRed)
-private val RiskLabels = listOf("Low", "Medium", "High")
+private val RiskColors = listOf(DangerRed, AccentOrange, LightGreen)
+private val RiskLabels = listOf("High", "Medium", "Low")
 
-@OptIn(ExperimentalKoalaPlotApi::class)
 @Composable
 fun RiskDistributionChart(lowRisk: Int, mediumRisk: Int, highRisk: Int, modifier: Modifier = Modifier) {
-    val values = listOf(lowRisk, mediumRisk, highRisk).map { it.toFloat() }
-
-    Column(modifier) {
-        if (values.sum() == 0f) {
-            Text("No events yet", style = MaterialTheme.typography.bodySmall)
-            return@Column
-        }
-
-        PieChart(
-            values = values,
-            modifier = Modifier.fillMaxWidth().height(160.dp),
-            slice = { index -> DefaultSlice(color = RiskColors[index]) },
-        )
-        Spacer(Modifier.height(8.dp))
-        Legend(RiskLabels, RiskColors)
-    }
+    DonutChart(
+        values = listOf(highRisk, mediumRisk, lowRisk),
+        labels = RiskLabels,
+        colors = RiskColors,
+        totalLabel = "Total",
+        modifier = modifier,
+    )
 }
 
 @Composable

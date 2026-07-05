@@ -11,6 +11,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import com.example.faunabahav.data.repository.DeviceRepository
 import com.example.faunabahav.model.User
 
 private val MoreOverflowDestinations = setOf(
@@ -30,12 +31,19 @@ fun ResponsiveScaffold(
     selected: Destination,
     onSelect: (Destination) -> Unit,
     user: User?,
+    deviceRepository: DeviceRepository,
     onLogout: () -> Unit = {},
     content: @Composable () -> Unit,
 ) {
     if (rememberIsWideScreen()) {
         Row(Modifier.fillMaxSize()) {
-            AppSidebar(selected = selected, onSelect = onSelect, user = user, onLogout = onLogout)
+            AppSidebar(
+                selected = selected,
+                onSelect = onSelect,
+                user = user,
+                deviceRepository = deviceRepository,
+                onLogout = onLogout,
+            )
             Box(Modifier.weight(1f)) { content() }
         }
     } else {

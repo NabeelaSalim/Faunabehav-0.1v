@@ -2,11 +2,14 @@ package com.example.faunabahav.data.remote
 
 import com.example.faunabahav.data.remote.dto.AlertDto
 import com.example.faunabahav.data.remote.dto.AnalyticsSummaryDto
+import com.example.faunabahav.data.remote.dto.AuthResponseDto
 import com.example.faunabahav.data.remote.dto.DashboardSummaryDto
 import com.example.faunabahav.data.remote.dto.DeviceDto
 import com.example.faunabahav.data.remote.dto.FeedbackDto
 import com.example.faunabahav.data.remote.dto.InferenceResultDto
+import com.example.faunabahav.data.remote.dto.LoginRequestDto
 import com.example.faunabahav.data.remote.dto.ObservationDto
+import com.example.faunabahav.data.remote.dto.RegisterRequestDto
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.forms.formData
@@ -61,4 +64,16 @@ class FaunaBehavApiClient(private val client: HttpClient) {
 
     suspend fun getDevices(): List<DeviceDto> =
         client.get("devices/").body()
+
+    suspend fun login(request: LoginRequestDto): AuthResponseDto =
+        client.post("auth/login") {
+            contentType(ContentType.Application.Json)
+            setBody(request)
+        }.body()
+
+    suspend fun register(request: RegisterRequestDto): AuthResponseDto =
+        client.post("auth/register") {
+            contentType(ContentType.Application.Json)
+            setBody(request)
+        }.body()
 }
