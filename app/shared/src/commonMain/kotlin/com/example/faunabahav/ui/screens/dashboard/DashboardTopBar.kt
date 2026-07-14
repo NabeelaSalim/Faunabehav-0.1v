@@ -107,7 +107,7 @@ private fun InfoChip(content: @Composable () -> Unit) {
 
 private fun formatFullDate(dt: LocalDateTime): String {
     val month = monthName(dt.month)
-    return "${dt.dayOfMonth} $month ${dt.year}"
+    return "${dt.day} $month ${dt.year}"
 }
 
 private fun formatClock(dt: LocalDateTime): String {

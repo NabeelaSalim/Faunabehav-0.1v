@@ -39,12 +39,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.faunabahav.data.settings.SettingsKeys
+import com.example.faunabahav.data.settings.SettingsStorage
 import com.example.faunabahav.model.User
 import com.example.faunabahav.ui.theme.DangerRed
 import com.example.faunabahav.ui.theme.PrimaryGreen
 
 @Composable
-fun SettingsScreen(user: User?, onLogout: () -> Unit = {}, modifier: Modifier = Modifier) {
+fun SettingsScreen(
+    user: User?,
+    onLogout: () -> Unit = {},
+    settingsStorage: SettingsStorage,
+    darkModeEnabled: Boolean,
+    onDarkModeChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Column(
         modifier = modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
     ) {
@@ -53,7 +62,11 @@ fun SettingsScreen(user: User?, onLogout: () -> Unit = {}, modifier: Modifier = 
 
         ProfileSection(user)
         Spacer(Modifier.height(16.dp))
-        PreferencesSection()
+        PreferencesSection(
+            settingsStorage = settingsStorage,
+            darkModeEnabled = darkModeEnabled,
+            onDarkModeChange = onDarkModeChange,
+        )
         Spacer(Modifier.height(16.dp))
         AboutSection()
         Spacer(Modifier.height(16.dp))
@@ -88,29 +101,45 @@ private fun ProfileSection(user: User?) {
 }
 
 @Composable
-private fun PreferencesSection() {
-    var pushNotifications by remember { mutableStateOf(true) }
-    var weatherAlerts by remember { mutableStateOf(true) }
-    var darkMode by remember { mutableStateOf(false) }
+private fun PreferencesSection(
+    settingsStorage: SettingsStorage,
+    darkModeEnabled: Boolean,
+    onDarkModeChange: (Boolean) -> Unit,
+) {
+    var pushNotifications by remember {
+        mutableStateOf(settingsStorage.getBoolean(SettingsKeys.PUSH_NOTIFICATIONS, true))
+    }
+    var weatherAlerts by remember {
+        mutableStateOf(settingsStorage.getBoolean(SettingsKeys.WEATHER_ALERTS, true))
+    }
 
     SectionCard(title = "Preferences") {
         PreferenceRow(
             icon = Icons.Filled.Notifications,
             label = "Push notifications",
             checked = pushNotifications,
-            onCheckedChange = { pushNotifications = it },
+            onCheckedChange = {
+                pushNotifications = it
+                settingsStorage.setBoolean(SettingsKeys.PUSH_NOTIFICATIONS, it)
+            },
         )
         PreferenceRow(
             icon = Icons.Filled.WaterDrop,
             label = "Weather alerts",
             checked = weatherAlerts,
-            onCheckedChange = { weatherAlerts = it },
+            onCheckedChange = {
+                weatherAlerts = it
+                settingsStorage.setBoolean(SettingsKeys.WEATHER_ALERTS, it)
+            },
         )
         PreferenceRow(
             icon = Icons.Filled.DarkMode,
             label = "Dark mode",
-            checked = darkMode,
-            onCheckedChange = { darkMode = it },
+            checked = darkModeEnabled,
+            onCheckedChange = {
+                onDarkModeChange(it)
+                settingsStorage.setBoolean(SettingsKeys.DARK_MODE, it)
+            },
         )
     }
 }

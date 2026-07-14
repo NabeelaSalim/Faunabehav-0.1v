@@ -45,7 +45,10 @@ captures
 node_modules/
 .claude/
 
-# Backend (Python/FastAPI)
+# Backend (Python/FastAPI) — model weights in outputs_corrected_v2/ are intentionally
+# NOT ignored, they're versioned with the project so a clone is immediately runnable.
+# Exception: the R3D18 .pth checkpoints are ~364MB each, over GitHub's 100MB hard
+# limit, so those specific files (only) are excluded.
 backend/venv/
 backend/__pycache__/
 backend/**/__pycache__/
@@ -53,3 +56,4 @@ backend/uploads/
 backend/frames/
 backend/.env
 backend/outputs_corrected_v2/*.pth
+

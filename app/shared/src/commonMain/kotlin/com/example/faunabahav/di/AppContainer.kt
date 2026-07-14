@@ -9,6 +9,7 @@ import com.example.faunabahav.data.repository.AnalyticsRepository
 import com.example.faunabahav.data.repository.AnalyticsRepositoryImpl
 import com.example.faunabahav.data.repository.AuthRepository
 import com.example.faunabahav.data.repository.AuthRepositoryImpl
+import com.example.faunabahav.data.repository.sessionTokenFrom
 import com.example.faunabahav.data.repository.DashboardRepository
 import com.example.faunabahav.data.repository.DashboardRepositoryImpl
 import com.example.faunabahav.data.repository.DeviceRepository
@@ -23,7 +24,7 @@ class AppContainer(
     sessionStorage: SessionStorage,
     val baseUrl: String = defaultBaseUrl(),
 ) {
-    val httpClient = createHttpClient(baseUrl)
+    val httpClient = createHttpClient(baseUrl, tokenProvider = { sessionTokenFrom(sessionStorage.readRaw()) })
     private val apiClient = FaunaBehavApiClient(httpClient)
 
     val observationRepository: ObservationRepository = ObservationRepositoryImpl(apiClient)

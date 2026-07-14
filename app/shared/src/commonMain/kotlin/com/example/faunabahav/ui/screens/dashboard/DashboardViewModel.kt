@@ -31,4 +31,17 @@ class DashboardViewModel(
             }
         }
     }
+
+    /** Background poll refresh: no Loading state, so the dashboard never blanks out mid-poll.
+     *  MutableStateFlow only notifies collectors when the new value is unequal to the current
+     *  one (DashboardSummary is a data class), so composables reading this state simply don't
+     *  recompose at all when a poll comes back with unchanged data — a real no-op refresh. */
+    fun refreshSilently() {
+        viewModelScope.launch {
+            when (val result = repository.getDashboardSummary()) {
+                is ApiResult.Success -> _uiState.value = UiState.Success(result.data)
+                is ApiResult.Failure -> Unit // keep showing the last good data on a background poll failure
+            }
+        }
+    }
 }

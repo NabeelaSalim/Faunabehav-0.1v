@@ -70,7 +70,7 @@ fun ObservationThumbnail(
         val textMeasurer = rememberTextMeasurer()
 
         Canvas(Modifier.fillMaxSize()) {
-            val imageAspect = frameWidth!!.toFloat() / frameHeight!!.toFloat()
+            val imageAspect = frameWidth.toFloat() / frameHeight.toFloat()
             val boxAspect = boxWidthPx / boxHeightPx
             val (renderedWidth, renderedHeight) = if (imageAspect > boxAspect) {
                 boxWidthPx to boxWidthPx / imageAspect
@@ -81,7 +81,7 @@ fun ObservationThumbnail(
             val offsetY = (boxHeightPx - renderedHeight) / 2f
             val scale = renderedWidth / frameWidth.toFloat()
 
-            val left = offsetX + boundingBox!!.x1.toFloat() * scale
+            val left = offsetX + boundingBox.x1.toFloat() * scale
             val top = offsetY + boundingBox.y1.toFloat() * scale
             val right = offsetX + boundingBox.x2.toFloat() * scale
             val bottom = offsetY + boundingBox.y2.toFloat() * scale

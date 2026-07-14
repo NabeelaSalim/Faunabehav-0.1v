@@ -53,6 +53,7 @@ kotlin {
             implementation(libs.ktor.clientOkhttp)
             implementation(libs.androidx.activity.compose)
             implementation(libs.kotlinx.coroutinesAndroid)
+            implementation(libs.androidx.core.ktx)
         }
         commonMain.dependencies {
             api(projects.core)

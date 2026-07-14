@@ -64,6 +64,7 @@ fun ResponsiveScaffold(
 
         if (showMoreSheet) {
             MoreDestinationsSheet(
+                user = user,
                 onSelect = { dest ->
                     onSelect(dest)
                     showMoreSheet = false

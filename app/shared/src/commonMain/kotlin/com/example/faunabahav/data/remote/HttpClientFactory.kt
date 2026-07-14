@@ -6,11 +6,19 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
+import io.ktor.client.request.header
 import io.ktor.client.request.url
+import io.ktor.http.HttpHeaders
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
-fun createHttpClient(baseUrl: String = defaultBaseUrl()): HttpClient = HttpClient {
+/** [tokenProvider] is read fresh on every request (not captured once) so login/logout during the
+ *  app's lifetime is reflected immediately without needing to recreate the client. Returns null
+ *  when there's no active session — requests simply go out unauthenticated, same as today. */
+fun createHttpClient(
+    baseUrl: String = defaultBaseUrl(),
+    tokenProvider: () -> String? = { null },
+): HttpClient = HttpClient {
     expectSuccess = true
 
     install(ContentNegotiation) {
@@ -31,5 +39,6 @@ fun createHttpClient(baseUrl: String = defaultBaseUrl()): HttpClient = HttpClien
 
     defaultRequest {
         url(baseUrl)
+        tokenProvider()?.let { header(HttpHeaders.Authorization, "Bearer $it") }
     }
 }

@@ -1,5 +1,6 @@
 package com.example.faunabahav.data.remote
 
+import com.example.faunabahav.data.remote.dto.AcknowledgeAlertRequestDto
 import com.example.faunabahav.data.remote.dto.AlertDto
 import com.example.faunabahav.data.remote.dto.AnalyticsSummaryDto
 import com.example.faunabahav.data.remote.dto.AuthResponseDto
@@ -15,6 +16,7 @@ import io.ktor.client.call.body
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitFormWithBinaryData
 import io.ktor.client.request.get
+import io.ktor.client.request.patch
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
@@ -46,6 +48,15 @@ class FaunaBehavApiClient(private val client: HttpClient) {
 
     suspend fun getAlerts(): List<AlertDto> =
         client.get("alerts/").body()
+
+    suspend fun resolveAlert(alertId: Int): AlertDto =
+        client.patch("alerts/$alertId/resolve").body()
+
+    suspend fun acknowledgeAlert(alertId: Int, userId: Int): AlertDto =
+        client.patch("alerts/$alertId/acknowledge") {
+            contentType(ContentType.Application.Json)
+            setBody(AcknowledgeAlertRequestDto(userId))
+        }.body()
 
     suspend fun getFeedback(): List<FeedbackDto> =
         client.get("feedback/").body()

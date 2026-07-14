@@ -19,11 +19,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.InsertDriveFile
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.CloudUpload
-import androidx.compose.material.icons.filled.InsertDriveFile
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material3.Card
@@ -336,7 +336,7 @@ private fun DeviceDropdown(
             placeholder = { Text(if (devices.isEmpty()) "No devices available" else "Select a device") },
             leadingIcon = { Icon(Icons.Filled.Videocam, contentDescription = null) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            modifier = Modifier.fillMaxWidth().menuAnchor(androidx.compose.material3.MenuAnchorType.PrimaryNotEditable),
+            modifier = Modifier.fillMaxWidth().menuAnchor(androidx.compose.material3.ExposedDropdownMenuAnchorType.PrimaryNotEditable),
         )
         androidx.compose.material3.DropdownMenu(expanded = expanded && enabled, onDismissRequest = { expanded = false }) {
             devices.forEach { device ->
@@ -399,7 +399,7 @@ private fun PickedFileRow(pickedFile: PickedFile, onRemove: () -> Unit, enabled:
             modifier = Modifier.size(40.dp).background(PrimaryGreen.copy(alpha = 0.12f), RoundedCornerShape(8.dp)),
             contentAlignment = Alignment.Center,
         ) {
-            Icon(Icons.Filled.InsertDriveFile, contentDescription = null, tint = PrimaryGreen)
+            Icon(Icons.AutoMirrored.Filled.InsertDriveFile, contentDescription = null, tint = PrimaryGreen)
         }
         Spacer(Modifier.width(12.dp))
         Column(Modifier.weight(1f)) {

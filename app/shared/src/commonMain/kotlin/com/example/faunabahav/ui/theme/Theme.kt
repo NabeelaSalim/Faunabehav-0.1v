@@ -1,11 +1,12 @@
 package com.example.faunabahav.ui.theme
 
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
-private val FaunaBahavColorScheme = lightColorScheme(
+private val FaunaBahavLightColorScheme = lightColorScheme(
     primary = PrimaryGreen,
     onPrimary = Color.White,
     primaryContainer = LightGreen,
@@ -25,12 +26,30 @@ private val FaunaBahavColorScheme = lightColorScheme(
     outline = BorderColor,
 )
 
+private val FaunaBahavDarkColorScheme = darkColorScheme(
+    primary = LightGreen,
+    onPrimary = Color.Black,
+    primaryContainer = DarkGreen,
+    onPrimaryContainer = Color.White,
+    secondary = AccentOrange,
+    onSecondary = Color.Black,
+    error = DangerRed,
+    onError = Color.Black,
+    errorContainer = Color(0xFF4A1414),
+    onErrorContainer = Color(0xFFFFB4AB),
+    background = BackgroundDark,
+    onBackground = PrimaryTextDark,
+    surface = CardDark,
+    onSurface = PrimaryTextDark,
+    surfaceVariant = CardDark,
+    onSurfaceVariant = SecondaryTextDark,
+    outline = BorderColorDark,
+)
+
 @Composable
-fun FaunaBahavTheme(content: @Composable () -> Unit) {
-    // Dark theme isn't part of this design pass; the light palette is used regardless of
-    // system setting so the SaaS-style look stays consistent across Android and Web.
+fun FaunaBahavTheme(darkTheme: Boolean = false, content: @Composable () -> Unit) {
     MaterialTheme(
-        colorScheme = FaunaBahavColorScheme,
+        colorScheme = if (darkTheme) FaunaBahavDarkColorScheme else FaunaBahavLightColorScheme,
         shapes = FaunaBahavShapes,
         typography = FaunaBahavTypography,
         content = content,

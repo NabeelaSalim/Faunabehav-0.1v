@@ -45,9 +45,7 @@ import com.example.faunabahav.model.Device
 import com.example.faunabahav.model.Observation
 import com.example.faunabahav.model.RiskLevel
 import com.example.faunabahav.ui.components.StatCard
-import com.example.faunabahav.ui.components.charts.ActivityTrendChart
 import com.example.faunabahav.ui.components.charts.DeterrenceOverviewChart
-import com.example.faunabahav.ui.components.charts.PeriodToggle
 import com.example.faunabahav.ui.components.charts.RiskDistributionChart
 import com.example.faunabahav.ui.components.UiStateContent
 import com.example.faunabahav.ui.navigation.Destination
@@ -63,8 +61,6 @@ import com.example.faunabahav.ui.state.UiState
 import com.example.faunabahav.ui.util.dayOverDayPercentChange
 import com.example.faunabahav.ui.util.deterrenceCategoryBreakdown
 import com.example.faunabahav.ui.util.lastNDaysCounts
-import com.example.faunabahav.ui.util.toTrendPoints
-import com.example.faunabahav.ui.util.TrendPeriod
 import kotlin.time.Clock
 import kotlinx.coroutines.delay
 import kotlinx.datetime.TimeZone
@@ -139,7 +135,6 @@ fun DashboardScreen(
             Spacer(Modifier.height(16.dp))
 
             SecondaryRow(
-                observationsState = observationsState,
                 deviceRepository = deviceRepository,
                 observationRepository = observationRepository,
                 devicesViewModel = devicesViewModel,
@@ -269,52 +264,18 @@ private fun RiskDeterrenceColumn(observationsViewModel: ObservationsViewModel, m
 
 @Composable
 private fun SecondaryRow(
-    observationsState: UiState<List<Observation>>,
     deviceRepository: DeviceRepository,
     observationRepository: ObservationRepository,
     devicesViewModel: DevicesViewModel,
     onNavigate: (Destination) -> Unit,
 ) {
-    if (rememberIsWideScreen()) {
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            ActivityTrendCard(observationsState, modifier = Modifier.weight(1.6f))
-            DeviceStatusPanel(
-                deviceRepository,
-                observationRepository,
-                viewModel = devicesViewModel,
-                onViewAllDevices = { onNavigate(Destination.Devices) },
-                modifier = Modifier.weight(1f),
-            )
-        }
-    } else {
-        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            ActivityTrendCard(observationsState, modifier = Modifier.fillMaxWidth())
-            DeviceStatusPanel(
-                deviceRepository,
-                observationRepository,
-                viewModel = devicesViewModel,
-                onViewAllDevices = { onNavigate(Destination.Devices) },
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
-    }
-}
-
-@Composable
-private fun ActivityTrendCard(observationsState: UiState<List<Observation>>, modifier: Modifier = Modifier) {
-    var period by remember { mutableStateOf(TrendPeriod.TODAY) }
-    val observations = (observationsState as? UiState.Success)?.data ?: emptyList()
-
-    Card(modifier) {
-        Column(Modifier.padding(16.dp)) {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("Activity Trend", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                PeriodToggle(selected = period, onSelect = { period = it })
-            }
-            Spacer(Modifier.height(12.dp))
-            ActivityTrendChart(observations.toTrendPoints(period), modifier = Modifier.fillMaxWidth())
-        }
-    }
+    DeviceStatusPanel(
+        deviceRepository,
+        observationRepository,
+        viewModel = devicesViewModel,
+        onViewAllDevices = { onNavigate(Destination.Devices) },
+        modifier = Modifier.fillMaxWidth(),
+    )
 }
 
 @Composable
@@ -381,7 +342,7 @@ private fun StatCardGrid(
         )
         StatCard(
             title = "Today's Detections",
-            value = todaysDetections?.toString() ?: "—",
+            value = todaysDetections.toString(),
             icon = Icons.Filled.CalendarToday,
             accentColor = com.example.faunabahav.ui.theme.PrimaryGreen,
             subtitle = "Last updated ${com.example.faunabahav.ui.util.formatTimeOnly(Clock.System.now())}",

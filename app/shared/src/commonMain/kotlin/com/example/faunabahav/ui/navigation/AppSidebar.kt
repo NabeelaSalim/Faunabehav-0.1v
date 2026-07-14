@@ -78,7 +78,7 @@ fun AppSidebar(
         }
 
         Column(Modifier.weight(1f).padding(horizontal = 12.dp)) {
-            Destination.entries.forEach { dest ->
+            visibleDestinations(Destination.entries, user).forEach { dest ->
                 SidebarItem(
                     destination = dest,
                     isSelected = dest == selected,

@@ -15,4 +15,12 @@ data class Alert(
     val deterrenceAction: String,
     val timestamp: Instant,
     val eventId: Int? = null,
+    val deviceId: Int? = null,
+    val speciesConfidence: Double? = null,
+    val camera: String? = null,
+    val framePath: String? = null,
+    val boundingBox: BoundingBox? = null,
+    val frameWidth: Int? = null,
+    val frameHeight: Int? = null,
+    val acknowledgedBy: Int? = null,
 )

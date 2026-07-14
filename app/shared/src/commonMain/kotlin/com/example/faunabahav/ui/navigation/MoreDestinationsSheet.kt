@@ -9,6 +9,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.example.faunabahav.model.User
 
 private val MoreDestinations = listOf(
     Destination.Analytics,
@@ -20,11 +21,12 @@ private val MoreDestinations = listOf(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MoreDestinationsSheet(
+    user: User?,
     onSelect: (Destination) -> Unit,
     onDismiss: () -> Unit,
 ) {
     ModalBottomSheet(onDismissRequest = onDismiss) {
-        MoreDestinations.forEach { dest ->
+        visibleDestinations(MoreDestinations, user).forEach { dest ->
             ListItem(
                 headlineContent = { Text(dest.label) },
                 leadingContent = { Icon(dest.icon, contentDescription = dest.label) },

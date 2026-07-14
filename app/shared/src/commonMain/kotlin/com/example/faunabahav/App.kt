@@ -16,11 +16,14 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import coil3.SingletonImageLoader
 import com.example.faunabahav.data.session.rememberSessionStorage
+import com.example.faunabahav.data.settings.SettingsKeys
+import com.example.faunabahav.data.settings.rememberSettingsStorage
 import com.example.faunabahav.di.AppContainer
 import com.example.faunabahav.ui.auth.AuthViewModel
 import com.example.faunabahav.ui.image.AppImageLoaderFactory
 import com.example.faunabahav.ui.navigation.Destination
 import com.example.faunabahav.ui.navigation.ResponsiveScaffold
+import com.example.faunabahav.ui.navigation.isAdmin
 import com.example.faunabahav.ui.screens.alerts.AlertsScreen
 import com.example.faunabahav.ui.screens.analytics.AnalyticsScreen
 import com.example.faunabahav.ui.screens.dashboard.DashboardScreen
@@ -35,7 +38,12 @@ import com.example.faunabahav.ui.theme.FaunaBahavTheme
 
 @Composable
 fun App() {
-    FaunaBahavTheme {
+    val settingsStorage = rememberSettingsStorage()
+    var darkModeEnabled by remember {
+        mutableStateOf(settingsStorage.getBoolean(SettingsKeys.DARK_MODE, false))
+    }
+
+    FaunaBahavTheme(darkTheme = darkModeEnabled) {
         val sessionStorage = rememberSessionStorage()
         val container = remember(sessionStorage) { AppContainer(sessionStorage = sessionStorage) }
         remember { SingletonImageLoader.setSafe(AppImageLoaderFactory(container.httpClient)) }
@@ -75,6 +83,9 @@ fun App() {
             true -> {
                 var destination by remember { mutableStateOf(Destination.Dashboard) }
                 val currentUser by authViewModel.currentUser.collectAsStateWithLifecycle()
+                if (destination.adminOnly && !currentUser.isAdmin) {
+                    destination = Destination.Dashboard
+                }
 
                 ResponsiveScaffold(
                     selected = destination,
@@ -95,9 +106,17 @@ fun App() {
                         )
                         Destination.Observations -> ObservationsScreen(
                             repository = container.observationRepository,
+                            deviceRepository = container.deviceRepository,
                             baseUrl = container.baseUrl,
                         )
-                        Destination.Alerts -> AlertsScreen(container.alertRepository)
+                        Destination.Alerts -> AlertsScreen(
+                            repository = container.alertRepository,
+                            deviceRepository = container.deviceRepository,
+                            feedbackRepository = container.feedbackRepository,
+                            baseUrl = container.baseUrl,
+                            currentUser = currentUser,
+                            onOpenObservation = { destination = Destination.Observations },
+                        )
                         Destination.Analytics -> AnalyticsScreen(
                             repository = container.analyticsRepository,
                             observationRepository = container.observationRepository,
@@ -112,7 +131,13 @@ fun App() {
                             baseUrl = container.baseUrl,
                             onViewAllObservations = { destination = Destination.Observations },
                         )
-                        Destination.Settings -> SettingsScreen(user = currentUser, onLogout = authViewModel::logout)
+                        Destination.Settings -> SettingsScreen(
+                            user = currentUser,
+                            onLogout = authViewModel::logout,
+                            settingsStorage = settingsStorage,
+                            darkModeEnabled = darkModeEnabled,
+                            onDarkModeChange = { darkModeEnabled = it },
+                        )
                     }
                 }
             }
