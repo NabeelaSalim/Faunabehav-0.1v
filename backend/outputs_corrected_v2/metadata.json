@@ -1,0 +1,52 @@
+{
+  "model": "R3D-18",
+  "behaviour_classes": [
+    "aggressive_destructive",
+    "feeding_foraging",
+    "locomotion",
+    "resting_passive",
+    "social_interaction",
+    "vigilance_alert"
+  ],
+  "behaviour_to_id": {
+    "aggressive_destructive": 0,
+    "feeding_foraging": 1,
+    "locomotion": 2,
+    "resting_passive": 3,
+    "social_interaction": 4,
+    "vigilance_alert": 5
+  },
+  "id_to_behaviour": {
+    "0": "aggressive_destructive",
+    "1": "feeding_foraging",
+    "2": "locomotion",
+    "3": "resting_passive",
+    "4": "social_interaction",
+    "5": "vigilance_alert"
+  },
+  "num_classes": 6,
+  "best_val_loss": 1.3749485361348293,
+  "best_val_f1": 0.5296989011589109,
+  "test_accuracy": 0.532695374800638,
+  "test_f1": 0.5025354460931699,
+  "num_frames": 16,
+  "image_size": 112,
+  "vid_mean": [
+    0.43215999007225037,
+    0.39466598629951477,
+    0.3764500021934509
+  ],
+  "vid_std": [
+    0.2280299961566925,
+    0.22145000100135803,
+    0.21698899567127228
+  ],
+  "class_weights": [
+    0.8693452380952381,
+    0.8693452380952381,
+    0.8693452380952381,
+    0.8693452380952381,
+    4.023415977961433,
+    0.8693452380952381
+  ]
+}
