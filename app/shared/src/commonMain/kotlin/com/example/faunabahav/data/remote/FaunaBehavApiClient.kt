@@ -6,6 +6,7 @@ import com.example.faunabahav.data.remote.dto.AnalyticsSummaryDto
 import com.example.faunabahav.data.remote.dto.AuthResponseDto
 import com.example.faunabahav.data.remote.dto.DashboardSummaryDto
 import com.example.faunabahav.data.remote.dto.DeviceDto
+import com.example.faunabahav.data.remote.dto.FarmDto
 import com.example.faunabahav.data.remote.dto.FeedbackDto
 import com.example.faunabahav.data.remote.dto.InferenceResultDto
 import com.example.faunabahav.data.remote.dto.LoginRequestDto
@@ -75,6 +76,27 @@ class FaunaBehavApiClient(private val client: HttpClient) {
 
     suspend fun getDevices(): List<DeviceDto> =
         client.get("devices/").body()
+
+    suspend fun getFarms(): List<FarmDto> =
+        client.get("farms/").body()
+
+    suspend fun createFarm(name: String, location: String): FarmDto =
+        client.post("farms/") {
+            contentType(ContentType.Application.Json)
+            setBody(mapOf("farm_name" to name, "location" to location))
+        }.body()
+
+    suspend fun deleteFarm(farmId: Int): Unit =
+        client.post("farms/$farmId/delete").body()
+
+    suspend fun controlDeterrence(deviceId: Int, action: String): Map<String, Any> =
+        client.post("devices/$deviceId/deterrence") {
+            contentType(ContentType.Application.Json)
+            setBody(mapOf("action" to action))
+        }.body()
+
+    suspend fun getDeterrenceStatus(deviceId: Int): Map<String, Any> =
+        client.get("devices/$deviceId/deterrence/status").body()
 
     suspend fun login(request: LoginRequestDto): AuthResponseDto =
         client.post("auth/login") {

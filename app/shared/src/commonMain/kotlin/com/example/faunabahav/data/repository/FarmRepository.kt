@@ -1,7 +1,6 @@
 package com.example.faunabahav.data.repository
 
 import com.example.faunabahav.data.remote.ApiResult
-import com.example.faunabahav.data.remote.CreateFarmRequest
 import com.example.faunabahav.data.remote.FaunaBehavApiClient
 import com.example.faunabahav.data.remote.apiCall
 import com.example.faunabahav.data.remote.dto.toDomain
@@ -21,7 +20,7 @@ class FarmRepositoryImpl(
     }
 
     override suspend fun createFarm(name: String, location: String): ApiResult<Farm> = apiCall {
-        api.createFarm(CreateFarmRequest(name, location)).toDomain()
+        api.createFarm(name, location).toDomain()
     }
 
     override suspend fun deleteFarm(farmId: Int): ApiResult<Unit> = apiCall {

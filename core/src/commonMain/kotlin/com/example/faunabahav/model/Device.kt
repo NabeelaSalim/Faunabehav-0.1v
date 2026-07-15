@@ -8,4 +8,5 @@ data class Device(
     val name: String,
     val location: String,
     val status: String,
+    val farmId: Int = 0,
 )

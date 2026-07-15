@@ -8,6 +8,7 @@ import com.example.faunabahav.model.Device
 
 interface DeviceRepository {
     suspend fun getDevices(): ApiResult<List<Device>>
+    suspend fun controlDeterrence(deviceId: Int, action: String): ApiResult<Unit>
 }
 
 class DeviceRepositoryImpl(
@@ -15,5 +16,10 @@ class DeviceRepositoryImpl(
 ) : DeviceRepository {
     override suspend fun getDevices(): ApiResult<List<Device>> = apiCall {
         api.getDevices().map { it.toDomain() }
+    }
+
+    override suspend fun controlDeterrence(deviceId: Int, action: String): ApiResult<Unit> = apiCall {
+        api.controlDeterrence(deviceId, action)
+        Unit
     }
 }

@@ -15,6 +15,8 @@ import com.example.faunabahav.data.repository.DashboardRepositoryImpl
 import com.example.faunabahav.data.repository.DeviceRepository
 import com.example.faunabahav.data.repository.DeviceRepositoryImpl
 import com.example.faunabahav.data.repository.FeedbackRepository
+import com.example.faunabahav.data.repository.FarmRepository
+import com.example.faunabahav.data.repository.FarmRepositoryImpl
 import com.example.faunabahav.data.repository.FeedbackRepositoryImpl
 import com.example.faunabahav.data.repository.ObservationRepository
 import com.example.faunabahav.data.repository.ObservationRepositoryImpl
@@ -33,6 +35,7 @@ class AppContainer(
     val dashboardRepository: DashboardRepository = DashboardRepositoryImpl(apiClient)
     val deviceRepository: DeviceRepository = DeviceRepositoryImpl(apiClient)
     val feedbackRepository: FeedbackRepository = FeedbackRepositoryImpl(apiClient)
+    val farmRepository: FarmRepository = FarmRepositoryImpl(apiClient)
 
-    val authRepository: AuthRepository = AuthRepositoryImpl(apiClient, sessionStorage)
+    val authRepository: AuthRepository = AuthRepositoryImpl(httpClient, sessionStorage)
 }

@@ -116,3 +116,8 @@ private fun decodeSession(raw: String?): Session? = raw?.let {
         null
     }
 }
+
+/** Reads just the bearer token out of a stored session, for attaching to outgoing requests
+ *  (see [com.example.faunabahav.data.remote.HttpClientFactory]) — a session may not exist yet
+ *  (logged out, or "remember me" was off), in which case requests simply go out unauthenticated. */
+fun sessionTokenFrom(raw: String?): String? = decodeSession(raw)?.token
