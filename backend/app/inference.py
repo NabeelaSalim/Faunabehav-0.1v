@@ -116,16 +116,17 @@ def detect_species(image_path: str) -> Optional[dict]:
     img_w = results[0].orig_shape[1]
     img_h = results[0].orig_shape[0]
 
+    x1, y1, x2, y2 = [round(v, 2) for v in xyxy]
     return {
         "species": species,
         "confidence": round(confidence, 4),
-        "bbox": [round(v, 2) for v in xyxy],
-        "bbox_normalized": [
-            round(xyxy[0] / img_w, 4),
-            round(xyxy[1] / img_h, 4),
-            round(xyxy[2] / img_w, 4),
-            round(xyxy[3] / img_h, 4),
-        ],
+        "bbox": {"x1": x1, "y1": y1, "x2": x2, "y2": y2},
+        "bbox_normalized": {
+            "x1": round(x1 / img_w, 4),
+            "y1": round(y1 / img_h, 4),
+            "x2": round(x2 / img_w, 4),
+            "y2": round(y2 / img_h, 4),
+        },
         "frame_width": img_w,
         "frame_height": img_h,
     }
