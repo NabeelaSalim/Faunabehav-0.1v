@@ -35,6 +35,7 @@ fun parseSpecies(raw: String): Species = when (raw.normalizeToken()) {
     "monkey" -> Species.MONKEY
     "wild_boar", "boar", "wildboar" -> Species.WILD_BOAR
     "bird" -> Species.BIRD
+    "unknown" -> Species.UNKNOWN
     else -> throw UnknownWireValueException("animal", raw)
 }
 
