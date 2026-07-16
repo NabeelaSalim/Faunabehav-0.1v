@@ -110,6 +110,18 @@ def _observation_to_dict(o: Observation) -> dict:
 
 
 def _alert_to_dict(a: Alert) -> dict:
+    import json
+    # Pull frame info from linked observation
+    frame_path = None
+    bbox = None
+    frame_w = None
+    frame_h = None
+    if a.observation:
+        frame_path = a.observation.frame_path
+        bbox_raw = a.observation.bounding_box
+        bbox = json.loads(bbox_raw) if bbox_raw else None
+        frame_w = a.observation.frame_width
+        frame_h = a.observation.frame_height
     return {
         "alert_id": a.alert_id,
         "event_id": a.event_id,
@@ -120,6 +132,10 @@ def _alert_to_dict(a: Alert) -> dict:
         "location": a.location,
         "status": a.status,
         "deterrence_action": a.deterrence_action,
+        "frame_path": frame_path,
+        "bounding_box": bbox,
+        "frame_width": frame_w,
+        "frame_height": frame_h,
         "timestamp": a.timestamp.isoformat() if a.timestamp else "",
     }
 
