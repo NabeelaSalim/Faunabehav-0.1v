@@ -8,4 +8,5 @@ enum class Species {
     @SerialName("monkey") MONKEY,
     @SerialName("wild_boar") WILD_BOAR,
     @SerialName("bird") BIRD,
+    @SerialName("unknown") UNKNOWN,
 }

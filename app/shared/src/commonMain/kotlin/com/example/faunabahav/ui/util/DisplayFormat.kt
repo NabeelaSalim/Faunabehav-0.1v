@@ -20,6 +20,7 @@ fun Species.emoji(): String = when (this) {
     Species.WILD_BOAR -> "🐗"
     Species.MONKEY -> "🐒"
     Species.BIRD -> "🐦"
+    Species.UNKNOWN -> "❓"
 }
 
 /** Renders an enum-ish name field, or a dash when the underlying value is absent. */
