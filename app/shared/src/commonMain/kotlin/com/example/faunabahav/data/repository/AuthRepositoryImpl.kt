@@ -100,11 +100,10 @@ class AuthRepositoryImpl(
     private fun persistSession(user: User, token: String, rememberMe: Boolean): User {
         val session = Session(token = token, user = user)
         cachedSession = session
-        if (rememberMe) {
-            sessionStorage.writeRaw(Json.encodeToString(Session.serializer(), session))
-        } else {
-            sessionStorage.clear()
-        }
+        // Always persist to storage so the HTTP client's token provider can find the token
+        // for authenticated API requests. The rememberMe flag controls only whether the
+        // session survives a full page reload (since we use localStorage for web).
+        sessionStorage.writeRaw(Json.encodeToString(Session.serializer(), session))
         return user
     }
 }
