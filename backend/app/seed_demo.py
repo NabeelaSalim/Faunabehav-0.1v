@@ -47,6 +47,9 @@ def seed():
         db.close()
         return
 
+    uploads_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "uploads")
+    os.makedirs(uploads_dir, exist_ok=True)
+
     image_files = sorted(
         [f for f in os.listdir(seed_dir) if f.lower().endswith((".jpg", ".jpeg", ".png"))]
     )
@@ -56,8 +59,8 @@ def seed():
     for fname in image_files:
         fpath = os.path.join(seed_dir, fname)
 
-        # Skip if already processed (check frame_path)
-        existing = db.query(Observation).filter(Observation.frame_path == fpath).first()
+        # Skip if already processed (check by basename)
+        existing = db.query(Observation).filter(Observation.frame_path == fname).first()
         if existing:
             logger.info("  Skipped %s (already exists as event_id=%d)", fname, existing.event_id)
             continue
@@ -74,6 +77,11 @@ def seed():
             logger.info("  Skipped %s (decision=%s)", fname, decision)
             continue
 
+        # Copy file to uploads dir so it's accessible via /frames/ static mount
+        import shutil
+        dest_path = os.path.join(uploads_dir, fname)
+        shutil.copy2(fpath, dest_path)
+
         # Create observation
         bbox = result.get("bounding_box")
         obs = Observation(
@@ -83,7 +91,7 @@ def seed():
             confidence=result.get("behaviour_confidence", 0.0),
             risk_level=result["risk_level"],
             deterrence_action=result["actions"][0] if result.get("actions") else "monitor",
-            frame_path=fpath,
+            frame_path=fname,
             bounding_box=json.dumps(bbox) if bbox else None,
             frame_width=result.get("frame_width"),
             frame_height=result.get("frame_height"),

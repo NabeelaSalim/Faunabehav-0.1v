@@ -672,7 +672,7 @@ async def run_inference(
             confidence=result.get("behaviour_confidence", 0.0),
             risk_level=result["risk_level"],
             deterrence_action=result["actions"][0] if result.get("actions") else "monitor",
-            frame_path=dest,
+            frame_path=os.path.basename(dest),
             bounding_box=json.dumps(bbox) if bbox else None,
             frame_width=result.get("frame_width"),
             frame_height=result.get("frame_height"),

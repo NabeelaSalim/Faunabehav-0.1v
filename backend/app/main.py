@@ -18,6 +18,7 @@ import logging
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from app.database import Base, engine
 from app.auth import auth_router
@@ -53,6 +54,12 @@ app.add_middleware(
 
 app.include_router(auth_router)
 app.include_router(data_router)
+
+# ── Static files: serve uploaded images / frames ─────────────────────────────
+
+uploads_dir = os.path.join(os.path.dirname(__file__), "..", "uploads")
+os.makedirs(uploads_dir, exist_ok=True)
+app.mount("/frames", StaticFiles(directory=uploads_dir), name="frames")
 
 # ── Startup ─────────────────────────────────────────────────────────────────────
 
