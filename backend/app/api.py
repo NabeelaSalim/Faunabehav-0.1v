@@ -662,7 +662,7 @@ async def run_inference(
             device_id=device_id,
             animal=result["detected_species"],
             behaviour=result["predicted_behaviour"],
-            confidence=result.get("species_confidence", 0.0),
+            confidence=result.get("behaviour_confidence", 0.0),
             risk_level=result["risk_level"],
             deterrence_action=result["actions"][0] if result.get("actions") else "monitor",
             frame_path=dest,
@@ -679,13 +679,28 @@ async def run_inference(
                 animal=result["detected_species"],
                 behaviour=result["predicted_behaviour"],
                 risk_level=result["risk_level"],
-                confidence=result.get("species_confidence", 0.0),
+                confidence=result.get("behaviour_confidence", 0.0),
                 location=location,
                 status="open",
                 deterrence_action=result["actions"][0] if result.get("actions") else "monitor",
             )
             db.add(alert)
             db.commit()
+
+        return {
+            "decision": "detected",
+            "event_id": obs.event_id,
+            "video_path": dest,
+            "detected_species": result.get("detected_species"),
+            "species_confidence": result.get("species_confidence"),
+            "predicted_behaviour": result.get("predicted_behaviour"),
+            "behaviour_confidence": result.get("behaviour_confidence"),
+            "risk_level": result.get("risk_level"),
+            "alert_type": result.get("alert_type"),
+            "actions": result.get("actions"),
+            "message": result.get("message"),
+            "frame_path": dest,
+        }
 
     if result.get("decision") == "no_target_species_detected":
         return {

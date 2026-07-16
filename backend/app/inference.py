@@ -1,10 +1,11 @@
 """
 R3D-18 model inference for FaunaBahav.
 Loads the trained model checkpoint, preprocesses images/videos,
-and maps model outputs to species + behaviour classifications.
+and predicts animal behaviour from video frames.
 
-NOTE: This module cannot be tested in the current sandboxed environment
-due to macOS code signing restrictions. Verify on a normal machine.
+The model is a 6-class behaviour classifier (no species output).
+Set environment variable TORCH_USE_RTLD_GLOBAL=1 before importing if
+libtorch_global_deps.dylib is missing on macOS.
 """
 
 import os
@@ -13,23 +14,24 @@ from typing import Optional
 
 logger = logging.getLogger(__name__)
 
-# ── Constants (adjust after inspecting checkpoint on a normal machine) ──────────
+# ── Model constants (confirmed from metadata.json and checkpoint inspection) ──
 NUM_FRAMES = 16
-FRAME_SIZE = 112  # R3D-18 default; adjust if checkpoint uses 224
+FRAME_SIZE = 112
 MEAN = [0.43216, 0.394666, 0.37645]
 STD = [0.22803, 0.22145, 0.21699]
 CONFIDENCE_THRESHOLD = 0.5
+NUM_CLASSES = 6
 
-SPECIES_LIST = ["monkey", "wild_boar", "bird"]
-BEHAVIOUR_LIST = [
-    "feeding_foraging",
-    "locomotion",
-    "vigilance_alert",
-    "aggressive_destructive",
-    "resting_passive",
-    "social_interaction",
-    "unknown_unclear",
-]
+# Index → behaviour mapping (from metadata.json behaviour_to_id)
+ID_TO_BEHAVIOUR = {
+    0: "aggressive_destructive",
+    1: "feeding_foraging",
+    2: "locomotion",
+    3: "resting_passive",
+    4: "social_interaction",
+    5: "vigilance_alert",
+}
+BEHAVIOUR_LIST = list(ID_TO_BEHAVIOUR.values())
 
 # ── Risk / deterrence mapping ───────────────────────────────────────────────────
 
@@ -77,7 +79,6 @@ def _read_frames_from_video(video_path: str) -> list:
         cap.release()
         raise ValueError(f"Video has no readable frames: {video_path}")
 
-    # Compute 16 evenly-spaced indices
     if total <= NUM_FRAMES:
         indices = list(range(total))
         indices += [indices[-1]] * (NUM_FRAMES - total)
@@ -119,7 +120,7 @@ def _tile_image_to_frames(image_path: str) -> list:
 
 
 class FaunaBehavInference:
-    """Loads and runs the trained R3D-18 model."""
+    """Loads and runs the trained R3D-18 behaviour classifier."""
 
     def __init__(self, model_path: str, device: str = "cpu"):
         self.device_str = device
@@ -141,13 +142,11 @@ class FaunaBehavInference:
             self.model_path, map_location=self.device, weights_only=False
         )
 
-        # Extract state dict (handle different key formats)
-        state_dict = checkpoint
-        if isinstance(checkpoint, dict):
-            for key in ("state_dict", "model_state_dict", "model"):
-                if key in checkpoint:
-                    state_dict = checkpoint[key]
-                    break
+        # Extract state dict — checkpoint has key "model_state"
+        if isinstance(checkpoint, dict) and "model_state" in checkpoint:
+            state_dict = checkpoint["model_state"]
+        else:
+            state_dict = checkpoint
 
         # Remove 'module.' prefix from DataParallel saves
         cleaned = {}
@@ -161,12 +160,15 @@ class FaunaBehavInference:
         if fc_weight_key:
             self._num_classes = cleaned[fc_weight_key].shape[0]
         else:
-            self._num_classes = 10  # fallback if no fc found
+            self._num_classes = NUM_CLASSES
 
-        # Build model
+        # Build model — checkpoint uses nn.Sequential(nn.Dropout(0.5), nn.Linear(512, 6))
         model = models.r3d_18(weights=None)
         in_features = model.fc.in_features
-        model.fc = torch.nn.Linear(in_features, self._num_classes)
+        model.fc = torch.nn.Sequential(
+            torch.nn.Dropout(0.5),
+            torch.nn.Linear(in_features, self._num_classes),
+        )
         model.load_state_dict(cleaned, strict=False)
         model.to(self.device)
         model.eval()
@@ -192,7 +194,10 @@ class FaunaBehavInference:
         """
         Run inference on an image or video file.
 
-        Returns a dict matching the ``InferenceResultDto`` expected by the KMP client.
+        Returns a dict with:
+            decision, detected_species, species_confidence,
+            predicted_behaviour, behaviour_confidence,
+            risk_level, alert_type, actions, message
         """
         import torch
         import numpy as np
@@ -209,7 +214,6 @@ class FaunaBehavInference:
             frames = _read_frames_from_video(file_path)
 
         # Stack → (C, T, H, W) → batch dim
-        # Each frame is (H, W, C) in float32
         input_tensor = (
             torch.from_numpy(np.stack(frames))  # (T, H, W, C)
             .permute(3, 0, 1, 2)  # (C, T, H, W)
@@ -225,47 +229,27 @@ class FaunaBehavInference:
         top_idx = int(np.argmax(probs))
         confidence = float(probs[top_idx])
 
-        # Map output → species + behaviour ──
-        # The model was trained on species+behaviour combinations.
-        # Adjust this mapping after inspecting the actual class labels.
-        # Fallback heuristic:
-        if self._num_classes == 3:
-            # Pure species classifier
-            detected_species = SPECIES_LIST[top_idx] if top_idx < 3 else "unknown"
-            predicted_behaviour = "unknown_unclear"
-            species_conf = confidence
-            behaviour_conf = 0.0
-        elif self._num_classes == 10:
-            # 3 species × 7 behaviours = 21 (but some combos missing)
-            # Fallback: simple index-based split
-            species_idx = top_idx % 3
-            behaviour_idx = (top_idx // 3) % 7
-            detected_species = SPECIES_LIST[species_idx]
-            predicted_behaviour = BEHAVIOUR_LIST[behaviour_idx]
-            species_conf = confidence
-            behaviour_conf = confidence
-        else:
-            detected_species = "unknown"
-            predicted_behaviour = "unknown_unclear"
-            species_conf = confidence
-            behaviour_conf = 0.0
-
         if confidence < CONFIDENCE_THRESHOLD:
             return {"decision": "no_target_species_detected"}
+
+        # Map 6-class output to behaviour
+        predicted_behaviour = ID_TO_BEHAVIOUR.get(top_idx, "unknown_unclear")
 
         risk = risk_level_for(predicted_behaviour)
         action = deterrence_action_for(risk)
 
+        # Species is not classified by this model — return as "unknown"
         return {
             "decision": "detected",
-            "detected_species": detected_species,
-            "species_confidence": round(species_conf, 4),
+            "detected_species": "unknown",
+            "species_confidence": 0.0,
             "predicted_behaviour": predicted_behaviour,
-            "behaviour_confidence": round(behaviour_conf, 4),
+            "behaviour_confidence": round(confidence, 4),
             "risk_level": risk,
-            "alert_type": f"{risk}_risk_{detected_species}",
+            "alert_type": f"{risk}_risk_unknown",
             "actions": [action],
-            "message": f"Detected {detected_species} exhibiting {predicted_behaviour.replace('_', ' ')}",
+            "message": f"Animal exhibiting {predicted_behaviour.replace('_', ' ')} "
+                       f"(confidence: {confidence:.2%})",
         }
 
 

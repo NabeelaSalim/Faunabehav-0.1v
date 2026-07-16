@@ -4,8 +4,15 @@ FaunaBahav — FastAPI application entry point.
 Run with::
 
     cd /Users/karimmaige/Downloads/FaunaBahav/backend
-    venv/bin/uvicorn app.main:app --reload --port 8000
+    TORCH_USE_RTLD_GLOBAL=1 venv/bin/uvicorn app.main:app --reload --port 8000
 """
+
+import os
+import sys
+
+# macOS workaround: set before importing any module that may load torch
+if sys.platform == "darwin":
+    os.environ.setdefault("TORCH_USE_RTLD_GLOBAL", "1")
 
 import logging
 
