@@ -91,6 +91,8 @@ def get_accessible_device_ids(user: User, db: Session) -> List[int]:
 
 
 def _observation_to_dict(o: Observation) -> dict:
+    import json
+    bbox_raw = o.bounding_box
     return {
         "event_id": o.event_id,
         "device_id": o.device_id,
@@ -101,6 +103,9 @@ def _observation_to_dict(o: Observation) -> dict:
         "deterrence_action": o.deterrence_action,
         "frame_path": o.frame_path or "",
         "timestamp": o.timestamp.isoformat() if o.timestamp else "",
+        "bounding_box": json.loads(bbox_raw) if bbox_raw else None,
+        "frame_width": o.frame_width,
+        "frame_height": o.frame_height,
     }
 
 
@@ -658,6 +663,8 @@ async def run_inference(
 
     # If a species was detected, create an observation + alert
     if result.get("decision") == "detected":
+        import json
+        bbox = result.get("bounding_box")
         obs = Observation(
             device_id=device_id,
             animal=result["detected_species"],
@@ -666,6 +673,9 @@ async def run_inference(
             risk_level=result["risk_level"],
             deterrence_action=result["actions"][0] if result.get("actions") else "monitor",
             frame_path=dest,
+            bounding_box=json.dumps(bbox) if bbox else None,
+            frame_width=result.get("frame_width"),
+            frame_height=result.get("frame_height"),
             timestamp=datetime.now(timezone.utc),
         )
         db.add(obs)
@@ -700,12 +710,18 @@ async def run_inference(
             "actions": result.get("actions"),
             "message": result.get("message"),
             "frame_path": dest,
+            "bounding_box": result.get("bounding_box"),
+            "frame_width": result.get("frame_width"),
+            "frame_height": result.get("frame_height"),
         }
 
     if result.get("decision") == "no_target_species_detected":
         return {
             "decision": "no_target_species_detected",
             "video_path": dest,
+            "bounding_box": result.get("bounding_box"),
+            "frame_width": result.get("frame_width"),
+            "frame_height": result.get("frame_height"),
         }
 
     return {
@@ -720,4 +736,7 @@ async def run_inference(
         "actions": result.get("actions"),
         "message": result.get("message"),
         "frame_path": dest,
+        "bounding_box": result.get("bounding_box"),
+        "frame_width": result.get("frame_width"),
+        "frame_height": result.get("frame_height"),
     }

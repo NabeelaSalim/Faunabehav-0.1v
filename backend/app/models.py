@@ -58,6 +58,9 @@ class Observation(Base):
     risk_level = Column(String(20), nullable=False)
     deterrence_action = Column(String(255), default="")
     frame_path = Column(String(500), default="")
+    bounding_box = Column(String(255), nullable=True)  # JSON: [x1,y1,x2,y2]
+    frame_width = Column(Integer, nullable=True)
+    frame_height = Column(Integer, nullable=True)
     timestamp = Column(DateTime(timezone=True), server_default=func.now())
 
     device = relationship("Device", back_populates="observations")
